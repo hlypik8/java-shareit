@@ -1,11 +1,10 @@
-package ru.practicum.shareit.user.validators;
+package ru.practicum.shareit.user.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
-import ru.practicum.shareit.user.annotations.UniqueEmail;
+import ru.practicum.shareit.user.validation.annotations.UniqueEmail;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 @Component
@@ -16,9 +15,9 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        if (userRepository.isEmailExists(email)){
-            throw new NotUniqueEmailException("Email-адрес должен быть уникальным");
+        if(email == null || email.isBlank()){
+            return true;
         }
-        return true;
+        return !userRepository.isEmailExists(email);
     }
 }

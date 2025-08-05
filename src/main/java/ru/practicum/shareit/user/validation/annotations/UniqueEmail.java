@@ -1,8 +1,8 @@
-package ru.practicum.shareit.user.annotations;
+package ru.practicum.shareit.user.validation.annotations;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import ru.practicum.shareit.user.validators.UniqueEmailValidator;
+import ru.practicum.shareit.user.validation.UniqueEmailValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

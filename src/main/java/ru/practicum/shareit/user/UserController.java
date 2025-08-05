@@ -6,11 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
 import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
+import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mappers.UserDtoMapper;
+import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.repository.UserRepository;
-
-import java.util.Map;
 
 /**
  * TODO Sprint add-controllers.
@@ -21,17 +20,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
-    private final UserDtoMapper userDtoMapper;
-
-    @GetMapping("/{userId}")
-    public User getUserById(@PathVariable int userId){
-        return userRepository.getUserById(userId);
-    }
+    private final UserService userService;
 
     @PostMapping
-    public UserDto addUser(@Valid @RequestBody User user){
-        return userDtoMapper.toDto(userRepository.addUser(user));
+    public UserDto addUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+        return userService.addUser(userCreateDto);
+    }
+
+    @PatchMapping("/{userId}")
+    public UserDto updateUser(@PathVariable Integer userId, @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        return userService.updateUser(userId, userUpdateDto);
+    }
+
+    @GetMapping("/{userId}")
+    public UserDto getUserById(@PathVariable Integer userId){
+        return userService.getUserById(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Integer userId){
+        userService.deleteUser(userId);
     }
 
     @ExceptionHandler
