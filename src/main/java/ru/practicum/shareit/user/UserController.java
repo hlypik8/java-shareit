@@ -11,10 +11,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor

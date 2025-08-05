@@ -49,7 +49,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public void deleteUser(Integer userId){
+    public void deleteUser(Integer userId) {
         users.remove(userId);
     }
 
@@ -65,12 +65,10 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public boolean isUserExists(Integer id) {
-        if(users.values().stream()
-                .anyMatch(user -> user.getId().equals(id))){
-            return true;
-        }else {
+        if (!users.containsKey(id)){
             throw new NotFoundException("Пользователь не найден");
         }
+        return true;
     }
 
     private Integer getNextId() {
