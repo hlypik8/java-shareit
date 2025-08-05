@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -44,8 +45,8 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public UserDto getUserById(Integer id) {
-        return userDtoMapper.toDto(users.get(id));
+    public Optional<User> getUserById(Integer userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     @Override
@@ -56,19 +57,11 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public boolean isEmailExists(String email) {
         if (users.values().stream()
-                .anyMatch(user -> email.equals(user.getEmail()))) {
+                .anyMatch(user -> email.equalsIgnoreCase(user.getEmail()))) {
             throw new NotUniqueEmailException("Email должен быть уникальным");
         } else {
             return false;
         }
-    }
-
-    @Override
-    public boolean isUserExists(Integer id) {
-        if (!users.containsKey(id)){
-            throw new NotFoundException("Пользователь не найден");
-        }
-        return true;
     }
 
     private Integer getNextId() {

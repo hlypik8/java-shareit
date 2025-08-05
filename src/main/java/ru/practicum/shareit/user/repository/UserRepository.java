@@ -5,15 +5,15 @@ import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 
+import java.util.Optional;
+
 public interface UserRepository {
 
     UserDto addUser(UserCreateDto userCreateDto);
 
-    UserDto getUserById(Integer id);
+    Optional<User> getUserById(Integer id);
 
     boolean isEmailExists(String email);
-
-    boolean isUserExists(Integer id);
 
     UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto);
 
