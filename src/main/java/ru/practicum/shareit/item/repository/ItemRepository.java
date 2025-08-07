@@ -5,6 +5,7 @@ import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -15,4 +16,6 @@ public interface ItemRepository {
     Optional<Item> getItemById(Integer itemId);
 
     ItemDto updateItem(ItemUpdateDto itemUpdateDto, Integer itemId);
+
+    public List<ItemDto> getAllItems();
 }

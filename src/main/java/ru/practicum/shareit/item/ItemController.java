@@ -11,6 +11,8 @@ import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/items")
@@ -38,6 +40,16 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Integer itemId){
         return itemService.getItemById(itemId);
+    }
+
+    @GetMapping
+    public List<ItemDto> getItemsByUserId(@RequestHeader(SHARER_ID_HEADER) Integer userId){
+        return itemService.getItemsByUserId(userId);
+    }
+
+    @GetMapping("/search")
+    public List<ItemDto> getSearch(@RequestParam(name = "text") String text){
+        return itemService.searchItems(text);
     }
 
     @ExceptionHandler
