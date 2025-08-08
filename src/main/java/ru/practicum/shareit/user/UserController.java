@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
+import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -21,33 +22,23 @@ public class UserController {
 
     @PostMapping
     public UserDto addUser(@Valid @RequestBody UserCreateDto userCreateDto) {
-        log.info("Создание нового пользователя");
-        UserDto createdUser = userService.addUser(userCreateDto);
-        log.info("Пользователь создан: ID={}, Email={}", createdUser.getId(), createdUser.getEmail());
-        return createdUser;
+        return userService.addUser(userCreateDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Integer userId, @Valid @RequestBody UserUpdateDto userUpdateDto) {
-        log.info("Обновление пользователя ID {}", userId);
-        UserDto updatedUser = userService.updateUser(userId, userUpdateDto);
-        log.debug("Пользователь обновлён: {}", updatedUser.toString());
-        return updatedUser;
+    public UserDto updateUser(@PathVariable Integer userId,
+                              @Valid @RequestBody UserUpdateDto userUpdateDto) throws NotFoundException {
+        return userService.updateUser(userId, userUpdateDto);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Integer userId) {
-        log.info("Запрос пользователя ID {}", userId);
-        UserDto user = userService.getUserById(userId);
-        log.debug("Получен пользователь: {}", user);
-        return user;
+    public UserDto getUserById(@PathVariable Integer userId) throws NotFoundException {
+        return userService.getUserById(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Integer userId) {
-        log.info("Удаление пользователя ID {}", userId);
+    public void deleteUser(@PathVariable Integer userId) throws NotFoundException {
         userService.deleteUser(userId);
-        log.debug("Пользователь ID {} удалён", userId);
     }
 
     @ExceptionHandler

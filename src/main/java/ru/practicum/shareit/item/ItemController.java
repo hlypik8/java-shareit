@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
+import ru.practicum.shareit.error.exceptions.InvalidItemOwnerException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -26,46 +27,30 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(@Valid @RequestBody ItemCreateDto itemCreateDto,
-                           @RequestHeader(sharerIdHeader) Integer userId) {
-
-        log.info("Добавление вещи пользователем с ID {}", userId);
-        ItemDto createdItemDto = itemService.addItem(itemCreateDto, userId);
-        log.debug("Вещь: {} успешно добавлена пользователю с ID: {}", createdItemDto.toString(), userId);
-        return createdItemDto;
+                           @RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException {
+        return itemService.addItem(itemCreateDto, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@RequestBody ItemUpdateDto itemUpdateDto,
                               @RequestHeader(sharerIdHeader) Integer userId,
-                              @PathVariable Integer itemId) {
-        log.info("Обновление вещи с ID: {} пользователем с ID {}", itemId, userId);
-        ItemDto updatedItemDto = itemService.updateItem(itemUpdateDto, userId, itemId);
-        log.debug("Вещь успешно обновлена: {}", updatedItemDto.toString());
-        return updatedItemDto;
+                              @PathVariable Integer itemId) throws InvalidItemOwnerException, NotFoundException {
+        return itemService.updateItem(itemUpdateDto, userId, itemId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Integer itemId) {
-        log.info("Запрос вещи по ID: {}", itemId);
-        ItemDto item = itemService.getItemById(itemId);
-        log.debug("Получена вещь: {}", item);
-        return item;
+    public ItemDto getItemById(@PathVariable Integer itemId) throws NotFoundException {
+        return itemService.getItemById(itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader(sharerIdHeader) Integer userId) {
-        log.info("Запрос всех вещей пользователя с ID: {}", userId);
-        List<ItemDto> items = itemService.getItemsByUserId(userId);
-        log.debug("Найдено {} вещей для пользователя {}", items.size(), userId);
-        return items;
+    public List<ItemDto> getItemsByUserId(@RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException {
+        return itemService.getItemsByUserId(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getSearch(@RequestParam(name = "text") String text) {
-        log.info("Поиск вещей по тексту: '{}'", text);
-        List<ItemDto> items = itemService.searchItems(text);
-        log.debug("Найдено {} вещей по запросу '{}'", items.size(), text);
-        return items;
+        return itemService.searchItems(text);
     }
 
     @ExceptionHandler

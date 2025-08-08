@@ -6,12 +6,10 @@ import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.dto.UserCreateDto;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,16 +21,16 @@ public class InMemoryUserRepository implements UserRepository {
     private int nextId = 0;
 
     @Override
-    public UserDto addUser(UserCreateDto userCreateDto) {
+    public User addUser(UserCreateDto userCreateDto) {
         User user = userDtoMapper.toUser(userCreateDto);
         int id = getNextId();
         user.setId(id);
         users.put(id, user);
-        return userDtoMapper.toDto(user);
+        return user;
     }
 
     @Override
-    public UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto) {
+    public User updateUser(Integer userId, UserUpdateDto userUpdateDto) {
         User user = users.get(userId);
         if (userUpdateDto.getName() != null) {
             user.setName(userUpdateDto.getName());
@@ -40,12 +38,12 @@ public class InMemoryUserRepository implements UserRepository {
         if (userUpdateDto.getEmail() != null) {
             user.setEmail(userUpdateDto.getEmail());
         }
-        return userDtoMapper.toDto(user);
+        return user;
     }
 
     @Override
-    public Optional<User> getUserById(Integer userId) {
-        return Optional.ofNullable(users.get(userId));
+    public User getUserById(Integer userId) {
+        return users.get(userId);
     }
 
     @Override
@@ -61,6 +59,10 @@ public class InMemoryUserRepository implements UserRepository {
         } else {
             return false;
         }
+    }
+
+    public boolean isUserExists(Integer userId) {
+        return users.get(userId) != null;
     }
 
     private Integer getNextId() {
