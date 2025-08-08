@@ -21,12 +21,12 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    private final String SHARER_ID_HEADER = "X-Sharer-User-Id";
+    private final String sharerIdHeader = "X-Sharer-User-Id";
 
 
     @PostMapping
     public ItemDto addItem(@Valid @RequestBody ItemCreateDto itemCreateDto,
-                           @RequestHeader(SHARER_ID_HEADER) Integer userId) {
+                           @RequestHeader(sharerIdHeader) Integer userId) {
 
         log.info("Добавление вещи пользователем с ID {}", userId);
         ItemDto createdItemDto = itemService.addItem(itemCreateDto, userId);
@@ -36,7 +36,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@RequestBody ItemUpdateDto itemUpdateDto,
-                              @RequestHeader(SHARER_ID_HEADER) Integer userId,
+                              @RequestHeader(sharerIdHeader) Integer userId,
                               @PathVariable Integer itemId) {
         log.info("Обновление вещи с ID: {} пользователем с ID {}", itemId, userId);
         ItemDto updatedItemDto = itemService.updateItem(itemUpdateDto, userId, itemId);
@@ -53,7 +53,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader(SHARER_ID_HEADER) Integer userId) {
+    public List<ItemDto> getItemsByUserId(@RequestHeader(sharerIdHeader) Integer userId) {
         log.info("Запрос всех вещей пользователя с ID: {}", userId);
         List<ItemDto> items = itemService.getItemsByUserId(userId);
         log.debug("Найдено {} вещей для пользователя {}", items.size(), userId);
