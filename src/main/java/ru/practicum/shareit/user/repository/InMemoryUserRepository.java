@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDtoMapper;

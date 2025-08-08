@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
-import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;

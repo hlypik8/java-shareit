@@ -1,10 +1,7 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.user.validation.annotations.UniqueEmail;
 
 @Data
 @AllArgsConstructor

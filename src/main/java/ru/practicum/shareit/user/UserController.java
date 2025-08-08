@@ -10,7 +10,6 @@ import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 @Slf4j
 @RestController
