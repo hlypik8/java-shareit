@@ -30,7 +30,7 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public ItemDto updateItem(ItemUpdateDto itemUpdateDto, Integer itemId){
+    public ItemDto updateItem(ItemUpdateDto itemUpdateDto, Integer itemId) {
         Item item = items.get(itemId);
         item.setName(itemUpdateDto.getName());
         item.setDescription(itemUpdateDto.getDescription());
@@ -40,12 +40,12 @@ public class InMemoryItemRepository implements ItemRepository {
     }
 
     @Override
-    public Optional<Item> getItemById(Integer itemId){
+    public Optional<Item> getItemById(Integer itemId) {
         return Optional.ofNullable(items.get(itemId));
     }
 
     @Override
-    public List<ItemDto> getAllItems(){
+    public List<ItemDto> getAllItems() {
         return items.values().stream()
                 .map(itemDtoMapper::toDto)
                 .collect(Collectors.toList());
