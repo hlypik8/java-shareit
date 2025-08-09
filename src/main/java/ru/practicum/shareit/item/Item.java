@@ -1,11 +1,11 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @AllArgsConstructor
-public class ItemDto {
+public class Item {
 
     private Integer id;
     private String name;
@@ -13,4 +13,5 @@ public class ItemDto {
     private Boolean available;
     private Integer owner;
     private Integer request;
+
 }
