@@ -23,4 +23,18 @@ public class ItemDtoMapper {
                 ownerId,
                 null);
     }
+
+    public Item updateItemFields(Item item, ItemUpdateDto itemUpdateDto) {
+        if (itemUpdateDto.hasName()) {
+            item.setName(itemUpdateDto.getName());
+        }
+        if (itemUpdateDto.hasDescription()) {
+            item.setDescription(itemUpdateDto.getDescription());
+        }
+        if (itemUpdateDto.hasAvailable()) {
+            item.setAvailable(itemUpdateDto.getAvailable());
+        }
+
+        return item;
+    }
 }

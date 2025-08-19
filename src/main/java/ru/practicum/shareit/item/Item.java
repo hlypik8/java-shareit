@@ -1,13 +1,14 @@
 package ru.practicum.shareit.item;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "items")
-@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Item {
 
     @Id
