@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
+import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -20,32 +21,44 @@ public class UserService {
 
     public UserDto addUser(UserCreateDto userCreateDto) {
         log.info("Создание нового пользователя");
-        UserDto createdUser = userDtoMapper.toDto(userRepository.addUser(userCreateDto));
+
+        if (userRepository.existsByEmail(userCreateDto.getEmail())) {
+            throw new NotUniqueEmailException("Пользователь с таким email-адресом уже существует");
+        }
+
+        User createdUser = userRepository.save(userDtoMapper.toUser(userCreateDto));
+
         log.info("Пользователь успешно создан: ID={}, Email={}", createdUser.getId(), createdUser.getEmail());
-        return createdUser;
+
+        return userDtoMapper.toDto(createdUser);
     }
 
     public UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto) throws NotFoundException {
         log.info("Обновление пользователя ID {}", userId);
-        if (!isUserExists(userId)) {
-            log.warn("Пользователь с ID {} не найден", userId);
-            throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
+
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с ID " + userId + " не найден"));
+
+        if (userUpdateDto.hasEmail() && !userUpdateDto.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(userUpdateDto.getEmail())) {
+                throw new NotUniqueEmailException("Пользователь с таким email-адресом уже существует");
+            }
         }
-        UserDto updatedUser = userDtoMapper.toDto(userRepository.updateUser(userId, userUpdateDto));
-        log.debug("Пользователь обновлён: {}", updatedUser.toString());
-        return updatedUser;
+
+        User updatedUser = userDtoMapper.updateUserFields(user, userUpdateDto);
+        updatedUser = userRepository.save(updatedUser);
+
+        log.debug("Пользователь обновлён: {}", updatedUser);
+        return userDtoMapper.toDto(updatedUser);
 
     }
 
     public UserDto getUserById(int userId) throws NotFoundException {
         log.info("Запрос пользователя ID {}", userId);
 
-        if (!isUserExists(userId)) {
-            log.warn("Пользователь с ID {} не найден", userId);
-            throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
-        }
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с ID: " + userId + " не найден"));
 
-        User user = userRepository.getUserById(userId);
         log.debug("Получен пользователь: {}", user.toString());
 
         return userDtoMapper.toDto(user);
@@ -54,17 +67,17 @@ public class UserService {
     public void deleteUser(Integer userId) throws NotFoundException {
         log.info("Удаление пользователя ID {}", userId);
 
-        if (!isUserExists(userId)) {
+        if (!userRepository.existsById(userId)) {
             log.warn("Пользователь с ID {} не найден", userId);
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
 
         log.debug("Пользователь ID {} удалён", userId);
 
-        userRepository.deleteUser(userId);
+        userRepository.delete(userRepository.findById(userId).get());
     }
 
     public boolean isUserExists(Integer userId) {
-        return userRepository.isUserExists(userId);
+        return userRepository.existsById(userId);
     }
 }

@@ -13,4 +13,15 @@ public class UserDtoMapper {
     public User toUser(UserCreateDto userCreateDto) {
         return new User(null, userCreateDto.getName(), userCreateDto.getEmail());
     }
+
+    public User updateUserFields(User user, UserUpdateDto userUpdateDto) {
+        if (userUpdateDto.hasName()) {
+            user.setName(userUpdateDto.getName());
+        }
+        if (userUpdateDto.hasEmail()) {
+            user.setEmail(userUpdateDto.getEmail());
+        }
+
+        return user;
+    }
 }
