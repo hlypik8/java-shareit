@@ -66,12 +66,12 @@ public class UserService {
     public void deleteUser(Integer userId) throws NotFoundException {
         log.info("Удаление пользователя ID {}", userId);
 
-        if (!userRepository.existsById(userId)) {
+        if (!isUserExists(userId)) {
             log.warn("Пользователь с ID {} не найден", userId);
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
 
-        log.debug("Пользователь ID {} удалён", userId);
+        log.debug("Пользователь ID {} успешно удалён", userId);
 
         userRepository.delete(userRepository.findById(userId).get());
     }
