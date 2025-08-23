@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
+import ru.practicum.shareit.error.exceptions.InvalidItemOwnerException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemService;
@@ -42,5 +43,24 @@ public class BookingService {
         return bookingDtoMapper.toBookingDto(booking);
     }
 
+    public BookingDto bookingVerification(Integer userId, Integer bookingId, boolean approved)
+            throws NotFoundException, InvalidItemOwnerException {
+        log.info("Верификация аренды с ID: {}", bookingId);
 
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+                new NotFoundException("Аренда с Id: " + bookingId + " не найдена"));
+
+        if (booking.getItem().getOwner().equals(userId)) {
+            if (approved) {
+                booking.setStatus(BookingStatus.APPROVED);
+            } else {
+                booking.setStatus(BookingStatus.REJECTED);
+            }
+        } else {
+            throw new InvalidItemOwnerException("Вы не являетесь владельцем вещи");
+        }
+        bookingRepository.save(booking);
+        log.debug("Верификация прошла успешно. Cтатус аренды с ID: " + bookingId + " " + booking.getStatus().toString());
+        return bookingDtoMapper.toBookingDto(booking);
+    }
 }

@@ -14,7 +14,6 @@ import ru.practicum.shareit.item.dto.ItemUpdateDto;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -56,7 +55,6 @@ public class ItemController {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(NotFoundException e) {
-        log.warn("Ошибка при обработке запроса: {}", e.getMessage());
         return new ErrorResponse("Ошибка параметра", e.getMessage());
     }
 }

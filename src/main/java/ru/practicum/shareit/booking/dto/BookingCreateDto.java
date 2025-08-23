@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import jakarta.validation.constraints.AssertFalse;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,6 +14,7 @@ public class BookingCreateDto {
     Integer itemId;
 
     @NotNull(message = "Время начала аренды не может быть пустым")
+    @Future(message = "Время начала аренды должно быть в будущем ")
     LocalDateTime start;
 
     @Future(message = "Время конца аренды должно быть в будущем ")
