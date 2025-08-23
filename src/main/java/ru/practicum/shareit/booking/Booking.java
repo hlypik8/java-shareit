@@ -29,11 +29,11 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    private ItemDto item;
+    private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserDto booker;
+    @JoinColumn(name = "booker_id")
+    private User booker;
 
     @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.WAITING;

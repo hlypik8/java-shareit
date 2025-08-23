@@ -15,6 +15,15 @@ public class ItemDtoMapper {
                 item.getRequest());
     }
 
+    public Item toItem(ItemDto itemDto){
+        return new Item(itemDto.getId(),
+                itemDto.getName(),
+                itemDto.getDescription(),
+                itemDto.getAvailable(),
+                itemDto.getOwner(),
+                itemDto.getRequest());
+    }
+
     public Item toItem(ItemCreateDto itemCreateDto, Integer ownerId) {
         return new Item(null,
                 itemCreateDto.getName(),
