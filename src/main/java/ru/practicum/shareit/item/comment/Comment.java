@@ -1,8 +1,12 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.comment;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
@@ -19,9 +23,12 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    private Integer itemId;
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
-    private Integer authorId;
+    private User author;
+
+    @Column(name = "created")
+    private LocalDateTime created = LocalDateTime.now();
 }

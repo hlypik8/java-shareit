@@ -1,9 +1,16 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
 
-@Component
+import java.util.List;
+import java.util.stream.Collectors;
+
+@UtilityClass
 public class ItemDtoMapper {
 
     public ItemDto toDto(Item item) {
@@ -15,7 +22,7 @@ public class ItemDtoMapper {
                 item.getRequest());
     }
 
-    public Item toItem(ItemDto itemDto){
+    public Item toItem(ItemDto itemDto) {
         return new Item(itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
@@ -31,6 +38,23 @@ public class ItemDtoMapper {
                 itemCreateDto.getAvailable(),
                 ownerId,
                 null);
+    }
+
+    public ItemWithBookingAndCommentsDto toItemWithBookingAndCommentsDto(Item item,
+                                                                         Booking lastBooking,
+                                                                         Booking nextBooking,
+                                                                         List<Comment> comments) {
+        return new ItemWithBookingAndCommentsDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getOwner(),
+                null,
+                lastBooking != null ? BookingDtoMapper.toBookingDto(lastBooking) : null,
+                nextBooking != null ? BookingDtoMapper.toBookingDto(nextBooking) : null,
+                comments.stream().map(CommentDtoMapper::toCommentDto).collect(Collectors.toList())
+        );
     }
 
     public Item updateItemFields(Item item, ItemUpdateDto itemUpdateDto) {

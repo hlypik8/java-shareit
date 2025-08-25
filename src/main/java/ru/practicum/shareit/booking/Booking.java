@@ -1,13 +1,10 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 

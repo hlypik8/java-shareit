@@ -16,7 +16,6 @@ import ru.practicum.shareit.user.dto.UserUpdateDto;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserDtoMapper userDtoMapper;
 
     public UserDto addUser(UserCreateDto userCreateDto) {
         log.info("Создание нового пользователя");
@@ -25,11 +24,11 @@ public class UserService {
             throw new NotUniqueEmailException("Пользователь с таким email-адресом уже существует");
         }
 
-        User createdUser = userRepository.save(userDtoMapper.toUser(userCreateDto));
+        User createdUser = userRepository.save(UserDtoMapper.toUser(userCreateDto));
 
         log.info("Пользователь успешно создан: ID={}, Email={}", createdUser.getId(), createdUser.getEmail());
 
-        return userDtoMapper.toDto(createdUser);
+        return UserDtoMapper.toDto(createdUser);
     }
 
     public UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto) throws NotFoundException {
@@ -44,11 +43,11 @@ public class UserService {
             }
         }
 
-        User updatedUser = userDtoMapper.updateUserFields(user, userUpdateDto);
+        User updatedUser = UserDtoMapper.updateUserFields(user, userUpdateDto);
         updatedUser = userRepository.save(updatedUser);
 
         log.debug("Пользователь обновлён: {}", updatedUser);
-        return userDtoMapper.toDto(updatedUser);
+        return UserDtoMapper.toDto(updatedUser);
 
     }
 
@@ -60,7 +59,7 @@ public class UserService {
 
         log.debug("Получен пользователь: {}", user.toString());
 
-        return userDtoMapper.toDto(user);
+        return UserDtoMapper.toDto(user);
     }
 
     public void deleteUser(Integer userId) throws NotFoundException {
