@@ -34,8 +34,7 @@ public class UserService {
     public UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto) throws NotFoundException {
         log.info("Обновление пользователя ID {}", userId);
 
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователь с ID " + userId + " не найден"));
+        User user = getUserById(userId);
 
         if (userUpdateDto.hasEmail() && !userUpdateDto.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userRepository.existsByEmail(userUpdateDto.getEmail())) {
@@ -51,11 +50,10 @@ public class UserService {
 
     }
 
-    public UserDto getUserById(int userId) throws NotFoundException {
+    public UserDto getUserDtoById(int userId) throws NotFoundException {
         log.info("Запрос пользователя ID {}", userId);
 
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException("Пользователь с ID: " + userId + " не найден"));
+        User user = getUserById(userId);
 
         log.debug("Получен пользователь: {}", user.toString());
 
@@ -73,6 +71,11 @@ public class UserService {
         log.debug("Пользователь ID {} успешно удалён", userId);
 
         userRepository.delete(userRepository.findById(userId).get());
+    }
+
+    public User getUserById(Integer userId) throws NotFoundException {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 
     public boolean isUserExists(Integer userId) {

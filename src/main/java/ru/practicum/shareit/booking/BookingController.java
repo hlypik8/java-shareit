@@ -41,7 +41,7 @@ public class BookingController {
     public BookingDto getBooking(@PathVariable Integer bookingId,
                                  @RequestHeader(sharerIdHeader) Integer userId)
             throws NotFoundException, InvalidItemOwnerException {
-        return bookingService.getBookingById(bookingId, userId);
+        return bookingService.getBookingDtoById(bookingId, userId);
     }
 
     @GetMapping

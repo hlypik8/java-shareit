@@ -17,11 +17,9 @@ import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,10 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemService {
 
-    private final ItemRepository itemRepository;
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRepository itemRepository;
 
     public ItemDto addItem(ItemCreateDto itemCreateDto, Integer ownerId) throws NotFoundException {
         log.info("Добавление вещи пользователем с ID {}", ownerId);
@@ -55,14 +53,13 @@ public class ItemService {
                               Integer itemId) throws InvalidItemOwnerException, NotFoundException {
         log.info("Обновление вещи с ID: {} пользователем с ID {}", itemId, userId);
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с ID: " + itemId + " не найдена"));
+        Item item = getItemById(itemId);
 
         if (!userService.isUserExists(userId)) {
             log.warn("Пользователь с ID: {} не найден", userId);
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
-        if (!itemRepository.findById(itemId).get().getOwner().equals(userId)) {
+        if (!item.getOwner().equals(userId)) {
             log.warn("Владелец вещи c ID: {} и пользователь не совпадают", userId);
             throw new InvalidItemOwnerException("Владелец вещи и пользователь не совпадают");
         }
@@ -87,18 +84,12 @@ public class ItemService {
         log.debug("Найдено {} вещей для пользователя {}", items.size(), userId);
 
         return items.stream().map(item -> {
-            List<Booking> bookings = bookingRepository.findAllByItemId(item.getId());
             LocalDateTime now = LocalDateTime.now();
 
-            Booking lastBooking = bookings.stream()
-                    .filter(booking -> booking.getEnd().isAfter(now))
-                    .max(Comparator.comparing(Booking::getEnd))
-                    .orElse(null);
+            Booking lastBooking = bookingRepository.findTopByItemIdAndEndAfterOrderByEndDesc(item.getId(), now);
 
-            Booking nextBooking = bookings.stream()
-                    .filter(booking -> booking.getStart().isAfter(now) && booking.getStatus() == BookingStatus.APPROVED)
-                    .min(Comparator.comparing(Booking::getStart))
-                    .orElse(null);
+            Booking nextBooking = bookingRepository.findTopByItemIdAndStartAfterAndStatusOrderByStartAsc(
+                    item.getId(), now, BookingStatus.APPROVED);
 
             List<Comment> comments = commentRepository.findAllByItemId(item.getId());
 
@@ -106,24 +97,17 @@ public class ItemService {
         }).toList();
     }
 
-    public ItemWithBookingAndCommentsDto getItemById(Integer itemId) throws NotFoundException {
+    public ItemWithBookingAndCommentsDto getItemDtoById(Integer itemId) throws NotFoundException {
         log.info("Запрос вещи по ID: {}", itemId);
 
-        Item item = itemRepository.findById(itemId).orElseThrow(() ->
-                new NotFoundException("Вещь с ID: " + itemId + " не найдена"));
+        Item item = getItemById(itemId);
 
-        List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
         LocalDateTime now = LocalDateTime.now();
 
-        Booking lastBooking = bookings.stream()
-                .filter(booking -> booking.getEnd().isAfter(now))
-                .max(Comparator.comparing(Booking::getEnd))
-                .orElse(null);
+        Booking lastBooking = bookingRepository.findTopByItemIdAndEndAfterOrderByEndDesc(item.getId(), now);
 
-        Booking nextBooking = bookings.stream()
-                .filter(booking -> booking.getStart().isAfter(now) && booking.getStatus() == BookingStatus.APPROVED)
-                .min(Comparator.comparing(Booking::getStart))
-                .orElse(null);
+        Booking nextBooking = bookingRepository.findTopByItemIdAndStartAfterAndStatusOrderByStartAsc(
+                item.getId(), now, BookingStatus.APPROVED);
 
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
 
@@ -135,7 +119,7 @@ public class ItemService {
     public List<ItemDto> searchItems(String text) {
         log.info("Поиск вещей по тексту: '{}'", text);
 
-        if (text.isBlank()) {
+        if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
 
@@ -154,10 +138,9 @@ public class ItemService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Вещь с ID: " + itemId + " не найдена"));
+        Item item = getItemById(itemId);
 
-        User user = UserDtoMapper.toUser(userService.getUserById(userId));
+        User user = userService.getUserById(userId);
 
         if (!bookingRepository.existsByItemIdAndBookerIdAndEndBefore(itemId, userId, now)) {
             throw new BookingNotvalidException("Аренда по запросу не найдена. Комментарий не сохранен");
@@ -165,8 +148,13 @@ public class ItemService {
 
         Comment comment = commentRepository.save(CommentDtoMapper.toComment(commentCreateDto, item, user));
 
-        log.debug("Комментарйи успешно сохранен text: {}", comment.getText());
+        log.info("Комментарйи успешно сохранен text: {}", comment.getText());
 
         return CommentDtoMapper.toCommentDto(comment);
+    }
+
+    public Item getItemById(Integer itemId) throws NotFoundException {
+        return itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Вещь с ID: " + itemId + " не найдена"));
     }
 }

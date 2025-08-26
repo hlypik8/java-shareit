@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
+import ru.practicum.shareit.booking.strategy.BookingStrategyContext;
 import ru.practicum.shareit.error.exceptions.InvalidItemOwnerException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
 import ru.practicum.shareit.error.exceptions.UnavailableItemException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,9 +25,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingService {
 
-    private final ItemRepository itemRepository;
+    private final ItemService itemService;
     private final UserService userService;
-    private final BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository; //Здесь можно было бы использовать сервис, но тогда получается циклическая зависимость сервисов Booking и Item
+    private final BookingStrategyContext bookingStrategyContext;
 
     Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
 
@@ -36,9 +37,8 @@ public class BookingService {
 
         log.info("Создание нового бронирования для пользователя {}", userId);
 
-        User user = UserDtoMapper.toUser(userService.getUserById(userId));
-        Item item = itemRepository.findById(bookingCreateDto.getItemId()).orElseThrow(
-                () -> new NotFoundException("Вещь с id " + bookingCreateDto.getItemId() + " не найдена"));
+        User user = userService.getUserById(userId);
+        Item item = itemService.getItemById(bookingCreateDto.getItemId());
 
         if (!item.getAvailable()) {
             throw new UnavailableItemException("Эта вещь не доступна для аренды");
@@ -59,11 +59,8 @@ public class BookingService {
                 new NotFoundException("Аренда с Id: " + bookingId + " не найдена"));
 
         if (booking.getItem().getOwner().equals(userId)) {
-            if (approved) {
-                booking.setStatus(BookingStatus.APPROVED);
-            } else {
-                booking.setStatus(BookingStatus.REJECTED);
-            }
+            var status = approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
+            booking.setStatus(status);
         } else {
             throw new InvalidItemOwnerException("Вы не являетесь владельцем вещи");
         }
@@ -72,7 +69,7 @@ public class BookingService {
         return BookingDtoMapper.toBookingDto(booking);
     }
 
-    public BookingDto getBookingById(Integer bookingId, Integer userId)
+    public BookingDto getBookingDtoById(Integer bookingId, Integer userId)
             throws NotFoundException, InvalidItemOwnerException {
         log.info("Запрос аренды с ID: {}", bookingId);
 
@@ -80,8 +77,7 @@ public class BookingService {
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
 
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new NotFoundException("Аренда с ID: " + bookingId + " не найдена"));
+        Booking booking = getBookingById(bookingId);
 
         boolean isOwner = booking.getItem().getOwner().equals(userId);
         boolean isBooker = booking.getBooker().getId().equals(userId);
@@ -97,19 +93,14 @@ public class BookingService {
     public List<BookingDto> getBookingList(String state, Integer userId) throws NotFoundException {
         log.info("Запрос бронирований пользователя с ID {}, state = {}", userId, state);
 
-        User user = UserDtoMapper.toUser(userService.getUserById(userId));
+        User user = userService.getUserById(userId);
 
         BookingState bookingState = BookingState.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
 
-        List<Booking> bookings = switch (bookingState) {
-            case ALL -> bookingRepository.findAllByBooker(user, sortByStartDesc);
-            case CURRENT -> bookingRepository.findAllByBookerAndStartBeforeAndEndAfter(user, now, now, sortByStartDesc);
-            case PAST -> bookingRepository.findAllByBookerAndEndBefore(user, now, sortByStartDesc);
-            case FUTURE -> bookingRepository.findAllByBookerAndStartAfter(user, now, sortByStartDesc);
-            case WAITING -> bookingRepository.findAllByStatusAndBooker(BookingStatus.WAITING, user, sortByStartDesc);
-            case REJECTED -> bookingRepository.findAllByStatusAndBooker(BookingStatus.REJECTED, user, sortByStartDesc);
-        };
+        List<Booking> bookings = bookingStrategyContext.executeStrategy(
+                bookingState, bookingRepository, user, sortByStartDesc, now
+        );
 
         List<BookingDto> bookingDto = bookings.stream()
                 .map(BookingDtoMapper::toBookingDto)
@@ -130,17 +121,9 @@ public class BookingService {
         BookingState bookingState = BookingState.valueOf(state.toUpperCase());
         LocalDateTime now = LocalDateTime.now();
 
-        List<Booking> bookings = switch (bookingState) {
-            case ALL -> bookingRepository.findAllByItemOwner(userId, sortByStartDesc);
-            case CURRENT ->
-                    bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfter(userId, now, now, sortByStartDesc);
-            case PAST -> bookingRepository.findAllByItemOwnerAndEndBefore(userId, now, sortByStartDesc);
-            case FUTURE -> bookingRepository.findAllByItemOwnerAndStartAfter(userId, now, sortByStartDesc);
-            case WAITING ->
-                    bookingRepository.findAllByStatusAndItemOwner(BookingStatus.WAITING, userId, sortByStartDesc);
-            case REJECTED ->
-                    bookingRepository.findAllByStatusAndItemOwner(BookingStatus.REJECTED, userId, sortByStartDesc);
-        };
+        List<Booking> bookings = bookingStrategyContext.executeStrategyForOwner(
+                bookingState, bookingRepository, userId, sortByStartDesc, now
+        );
 
         List<BookingDto> bookingDto = bookings.stream()
                 .map(BookingDtoMapper::toBookingDto)
@@ -149,5 +132,10 @@ public class BookingService {
         log.info("Запрос бронирований выполнен size: {}", bookingDto.size());
 
         return bookingDto;
+    }
+
+    public Booking getBookingById(Integer bookingId) throws NotFoundException {
+        return bookingRepository.findById(bookingId).orElseThrow(() ->
+                new NotFoundException("Аренда с ID: " + bookingId + " не найдена"));
     }
 }

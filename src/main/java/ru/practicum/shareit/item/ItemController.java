@@ -42,7 +42,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemWithBookingAndCommentsDto getItemById(@PathVariable Integer itemId) throws NotFoundException {
-        return itemService.getItemById(itemId);
+        return itemService.getItemDtoById(itemId);
     }
 
     @GetMapping
