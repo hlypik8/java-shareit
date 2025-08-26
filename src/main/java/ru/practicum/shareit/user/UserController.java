@@ -33,7 +33,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public UserDto getUserById(@PathVariable Integer userId) throws NotFoundException {
-        return userService.getUserById(userId);
+        return userService.getUserDtoById(userId);
     }
 
     @DeleteMapping("/{userId}")

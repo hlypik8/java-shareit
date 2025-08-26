@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
+import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 @Slf4j
 @Service
@@ -16,39 +16,48 @@ import ru.practicum.shareit.user.repository.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserDtoMapper userDtoMapper;
 
     public UserDto addUser(UserCreateDto userCreateDto) {
         log.info("Создание нового пользователя");
-        UserDto createdUser = userDtoMapper.toDto(userRepository.addUser(userCreateDto));
+
+        if (userRepository.existsByEmail(userCreateDto.getEmail())) {
+            throw new NotUniqueEmailException("Пользователь с таким email-адресом уже существует");
+        }
+
+        User createdUser = userRepository.save(UserDtoMapper.toUser(userCreateDto));
+
         log.info("Пользователь успешно создан: ID={}, Email={}", createdUser.getId(), createdUser.getEmail());
-        return createdUser;
+
+        return UserDtoMapper.toDto(createdUser);
     }
 
     public UserDto updateUser(Integer userId, UserUpdateDto userUpdateDto) throws NotFoundException {
         log.info("Обновление пользователя ID {}", userId);
-        if (!isUserExists(userId)) {
-            log.warn("Пользователь с ID {} не найден", userId);
-            throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
+
+        User user = getUserById(userId);
+
+        if (userUpdateDto.hasEmail() && !userUpdateDto.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(userUpdateDto.getEmail())) {
+                throw new NotUniqueEmailException("Пользователь с таким email-адресом уже существует");
+            }
         }
-        UserDto updatedUser = userDtoMapper.toDto(userRepository.updateUser(userId, userUpdateDto));
-        log.debug("Пользователь обновлён: {}", updatedUser.toString());
-        return updatedUser;
+
+        User updatedUser = UserDtoMapper.updateUserFields(user, userUpdateDto);
+        updatedUser = userRepository.save(updatedUser);
+
+        log.debug("Пользователь обновлён: {}", updatedUser);
+        return UserDtoMapper.toDto(updatedUser);
 
     }
 
-    public UserDto getUserById(int userId) throws NotFoundException {
+    public UserDto getUserDtoById(int userId) throws NotFoundException {
         log.info("Запрос пользователя ID {}", userId);
 
-        if (!isUserExists(userId)) {
-            log.warn("Пользователь с ID {} не найден", userId);
-            throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
-        }
+        User user = getUserById(userId);
 
-        User user = userRepository.getUserById(userId);
         log.debug("Получен пользователь: {}", user.toString());
 
-        return userDtoMapper.toDto(user);
+        return UserDtoMapper.toDto(user);
     }
 
     public void deleteUser(Integer userId) throws NotFoundException {
@@ -59,12 +68,17 @@ public class UserService {
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
 
-        log.debug("Пользователь ID {} удалён", userId);
+        log.debug("Пользователь ID {} успешно удалён", userId);
 
-        userRepository.deleteUser(userId);
+        userRepository.delete(userRepository.findById(userId).get());
+    }
+
+    public User getUserById(Integer userId) throws NotFoundException {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с ID: " + userId + " не найден"));
     }
 
     public boolean isUserExists(Integer userId) {
-        return userRepository.isUserExists(userId);
+        return userRepository.existsById(userId);
     }
 }

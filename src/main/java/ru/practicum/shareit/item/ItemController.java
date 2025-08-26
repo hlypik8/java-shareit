@@ -2,19 +2,21 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
+import ru.practicum.shareit.error.exceptions.BookingNotvalidException;
 import ru.practicum.shareit.error.exceptions.InvalidItemOwnerException;
 import ru.practicum.shareit.error.exceptions.NotFoundException;
+import ru.practicum.shareit.item.comment.dto.CommentCreateDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentsDto;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -39,12 +41,12 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Integer itemId) throws NotFoundException {
-        return itemService.getItemById(itemId);
+    public ItemWithBookingAndCommentsDto getItemById(@PathVariable Integer itemId) throws NotFoundException {
+        return itemService.getItemDtoById(itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException {
+    public List<ItemWithBookingAndCommentsDto> getItemsByUserId(@RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException {
         return itemService.getItemsByUserId(userId);
     }
 
@@ -53,10 +55,22 @@ public class ItemController {
         return itemService.searchItems(text);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Integer itemId,
+                                 @RequestBody @Valid CommentCreateDto commentCreateDto,
+                                 @RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException, BookingNotvalidException {
+        return itemService.createComment(commentCreateDto, itemId, userId);
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handle(NotFoundException e) {
-        log.warn("Ошибка при обработке запроса: {}", e.getMessage());
+        return new ErrorResponse("Ошибка параметра", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handle(BookingNotvalidException e) {
         return new ErrorResponse("Ошибка параметра", e.getMessage());
     }
 }
