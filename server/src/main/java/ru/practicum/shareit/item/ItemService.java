@@ -15,6 +15,8 @@ import ru.practicum.shareit.item.comment.dto.CommentCreateDto;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
 import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.request.RequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -32,6 +34,7 @@ public class ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
+    private final RequestService requestService;
 
     public ItemDto addItem(ItemCreateDto itemCreateDto, Integer ownerId) throws NotFoundException {
         log.info("Добавление вещи пользователем с ID {}", ownerId);
@@ -41,9 +44,15 @@ public class ItemService {
             throw new NotFoundException("Пользователь с ID: " + ownerId + " не найден");
         }
 
-        Item createdItem = itemRepository.save(ItemDtoMapper.toItem(itemCreateDto, ownerId));
+        Request request = null;
 
-        log.debug("Вещь: {} успешно добавлена пользователю с ID: {}", createdItem, ownerId);
+        if (itemCreateDto.getRequestId() != null) {
+            request = requestService.getRequestById(itemCreateDto.getRequestId());
+        }
+
+        Item createdItem = itemRepository.save(ItemDtoMapper.toItem(itemCreateDto, ownerId, request));
+
+        log.info("Вещь: {} успешно добавлена пользователю с ID: {}", createdItem.getName(), ownerId);
 
         return ItemDtoMapper.toDto(createdItem);
     }
@@ -66,7 +75,7 @@ public class ItemService {
 
         Item updatedItem = ItemDtoMapper.updateItemFields(item, itemUpdateDto);
 
-        log.debug("Вещь успешно обновлена: {}", updatedItem.toString());
+        log.info("Вещь успешно обновлена: {}", updatedItem.toString());
 
         return ItemDtoMapper.toDto(updatedItem);
     }
@@ -81,7 +90,7 @@ public class ItemService {
 
         List<Item> items = itemRepository.findItemsByOwner(userId);
 
-        log.debug("Найдено {} вещей для пользователя {}", items.size(), userId);
+        log.info("Найдено {} вещей для пользователя {}", items.size(), userId);
 
         return items.stream().map(item -> {
             LocalDateTime now = LocalDateTime.now();
@@ -111,7 +120,7 @@ public class ItemService {
 
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
 
-        log.debug("Получена вещь с Id: {}, комментариев: {}", itemId, comments.size());
+        log.info("Получена вещь с Id: {}, комментариев: {}", itemId, comments.size());
 
         return ItemDtoMapper.toItemWithBookingAndCommentsDto(item, lastBooking, nextBooking, comments);
     }
@@ -127,7 +136,7 @@ public class ItemService {
                 .map(ItemDtoMapper::toDto)
                 .collect(Collectors.toList());
 
-        log.debug("Найдено {} вещей по запросу '{}'", items.size(), text);
+        log.info("Найдено {} вещей по запросу '{}'", items.size(), text);
 
         return items;
     }

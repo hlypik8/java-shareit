@@ -69,7 +69,7 @@ public class BookingService {
         return BookingDtoMapper.toBookingDto(booking);
     }
 
-    public BookingDto getBookingDtoById(Integer bookingId, Integer userId)
+    public BookingDto getBookingDtoById(Integer userId, Integer bookingId)
             throws NotFoundException, InvalidItemOwnerException {
         log.info("Запрос аренды с ID: {}", bookingId);
 

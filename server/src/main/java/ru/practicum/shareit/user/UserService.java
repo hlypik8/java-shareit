@@ -45,7 +45,7 @@ public class UserService {
         User updatedUser = UserDtoMapper.updateUserFields(user, userUpdateDto);
         updatedUser = userRepository.save(updatedUser);
 
-        log.debug("Пользователь обновлён: {}", updatedUser);
+        log.info("Пользователь обновлён: {}", updatedUser);
         return UserDtoMapper.toDto(updatedUser);
 
     }
@@ -55,7 +55,7 @@ public class UserService {
 
         User user = getUserById(userId);
 
-        log.debug("Получен пользователь: {}", user.toString());
+        log.info("Получен пользователь: {}", user.toString());
 
         return UserDtoMapper.toDto(user);
     }
@@ -68,7 +68,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с ID: " + userId + " не найден");
         }
 
-        log.debug("Пользователь ID {} успешно удалён", userId);
+        log.info("Пользователь ID {} успешно удалён", userId);
 
         userRepository.delete(userRepository.findById(userId).get());
     }

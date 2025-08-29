@@ -13,4 +13,5 @@ public class ItemCreateDto {
     String description;
     @NotNull(message = "Статус доступности не может быть пустой")
     Boolean available;
+    Integer requestId;
 }

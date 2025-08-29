@@ -1,5 +1,6 @@
-package ru.practicum.shareit.user.dto;
+package ru.practicum.shareit.user;
 
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ public class UserUpdateDto {
 
     private String name;
 
+    @Email(message = "Неверный формат email")
     private String email;
 
     public boolean hasName() {

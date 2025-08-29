@@ -1,48 +1,35 @@
 package ru.practicum.shareit.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.error.ErrorResponse;
-import ru.practicum.shareit.error.exceptions.NotFoundException;
-import ru.practicum.shareit.error.exceptions.NotUniqueEmailException;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserUpdateDto;
 
-@Slf4j
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserClient userClient;
 
     @PostMapping
-    public UserDto addUser(@RequestBody UserCreateDto userCreateDto) {
-        return userService.addUser(userCreateDto);
+    public ResponseEntity<Object> addUser(@RequestBody @Valid UserCreateDto userCreateDto) {
+        return userClient.addUser(userCreateDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Integer userId,
-                              @RequestBody UserUpdateDto userUpdateDto) throws NotFoundException {
-        return userService.updateUser(userId, userUpdateDto);
+    public ResponseEntity<Object> updateUser(@PathVariable Integer userId,
+                              @RequestBody @Valid UserUpdateDto userUpdateDto){
+        return userClient.updateUser(userId, userUpdateDto);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Integer userId) throws NotFoundException {
-        return userService.getUserDtoById(userId);
+    public ResponseEntity<Object> getUserById(@PathVariable Integer userId) {
+        return userClient.getUserDtoById(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Integer userId) throws NotFoundException {
-        userService.deleteUser(userId);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handle(NotUniqueEmailException e) {
-        log.error("Ошибка уникальности email: {}", e.getMessage());
-        return new ErrorResponse("Ошибка параметра email", e.getMessage());
+    public void deleteUser(@PathVariable Integer userId) {
+        userClient.deleteUser(userId);
     }
 }

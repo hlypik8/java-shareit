@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Getter;
+import lombok.*;
 
-@Getter
+@Data
+@NoArgsConstructor
 public class ItemCreateDto {
 
     String name;
     String description;
     Boolean available;
+    Integer requestId;
 }

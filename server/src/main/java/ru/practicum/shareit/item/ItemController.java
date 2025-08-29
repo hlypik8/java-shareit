@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.error.ErrorResponse;
@@ -16,6 +17,7 @@ import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentsDto;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class ItemController {
     @PostMapping
     public ItemDto addItem(@RequestBody ItemCreateDto itemCreateDto,
                            @RequestHeader(sharerIdHeader) Integer userId) throws NotFoundException {
+        log.info("Received ItemCreateDto: name='{}' available='{}' requestId='{}'",
+                itemCreateDto.getName(), itemCreateDto.getAvailable(), itemCreateDto.getRequestId());
         return itemService.addItem(itemCreateDto, userId);
     }
 

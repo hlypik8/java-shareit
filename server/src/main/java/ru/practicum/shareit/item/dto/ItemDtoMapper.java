@@ -6,6 +6,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
+import ru.practicum.shareit.request.Request;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,30 +15,22 @@ import java.util.stream.Collectors;
 public class ItemDtoMapper {
 
     public ItemDto toDto(Item item) {
+        Integer requestId = item.getRequest() == null ? null : item.getRequest().getId();
         return new ItemDto(item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
                 item.getOwner(),
-                item.getRequest());
+                requestId);
     }
 
-    public Item toItem(ItemDto itemDto) {
-        return new Item(itemDto.getId(),
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                itemDto.getOwner(),
-                itemDto.getRequest());
-    }
-
-    public Item toItem(ItemCreateDto itemCreateDto, Integer ownerId) {
+    public Item toItem(ItemCreateDto itemCreateDto, Integer ownerId, Request request) {
         return new Item(null,
                 itemCreateDto.getName(),
                 itemCreateDto.getDescription(),
                 itemCreateDto.getAvailable(),
                 ownerId,
-                null);
+                request);
     }
 
     public ItemWithBookingAndCommentsDto toItemWithBookingAndCommentsDto(Item item,
@@ -50,7 +43,7 @@ public class ItemDtoMapper {
                 item.getDescription(),
                 item.getAvailable(),
                 item.getOwner(),
-                null,
+                item.getRequest(),
                 lastBooking != null ? BookingDtoMapper.toBookingDto(lastBooking) : null,
                 nextBooking != null ? BookingDtoMapper.toBookingDto(nextBooking) : null,
                 comments.stream().map(CommentDtoMapper::toCommentDto).collect(Collectors.toList())
