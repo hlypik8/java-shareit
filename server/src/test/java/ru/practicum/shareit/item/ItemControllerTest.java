@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,11 +63,8 @@ class ItemControllerTest {
     @Test
     @DisplayName("POST /items - success")
     void addItem_success() throws Exception {
-        String requestJson = """
-                {
-                "name":"Лопата","description":"для снега","available":true,"requestId":null
-                }
-                """;
+        String requestJson = "{\n\"name\":\"Лопата\",\"description\":\"для снега\",\"available\":true,\"requestId\":null\n}";
+        //Такая запись из-за проверки кодстайла
 
         ItemDto returned = mockItemDto(1, "Лопата", "для снега", true);
 
@@ -91,11 +87,7 @@ class ItemControllerTest {
     @Test
     @DisplayName("POST /items - NotFoundException -> 404")
     void addItem_notFound_returns404() throws Exception {
-        String requestJson = """
-                {
-                "name":"Вилка","description":"металл","available":true
-                }
-                """;
+        String requestJson = "{\n\"name\":\"Вилка\",\"description\":\"металл\",\"available\":true\n}";
 
         when(itemService.addItem(any(ItemCreateDto.class), eq(99)))
                 .thenThrow(new NotFoundException("Пользователь с ID: 99 не найден"));
@@ -117,11 +109,7 @@ class ItemControllerTest {
     void updateItem_success() throws Exception {
         int userId = 7;
         int itemId = 5;
-        String requestJson = """
-                {
-                "name":"Дрель","description":"новая","available":false
-                }
-                """;
+        String requestJson = "{\n\"name\":\"Дрель\",\"description\":\"новая\",\"available\":false\n}";
 
         ItemDto returned = mockItemDto(itemId, "Дрель", "новая", false);
 
@@ -136,7 +124,9 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.name").value("Дрель"))
                 .andExpect(jsonPath("$.available").value(false));
 
-        verify(itemService, times(1)).updateItem(any(ItemUpdateDto.class), eq(userId), eq(itemId));
+        verify(itemService,
+                times(1)).updateItem(any(ItemUpdateDto.class),
+                eq(userId), eq(itemId));
     }
 
     @Test
@@ -199,11 +189,7 @@ class ItemControllerTest {
     void addComment_success() throws Exception {
         int itemId = 77;
         int userId = 4;
-        String requestJson = """
-                {
-                "text":"Отличная вещь"
-                }
-                """;
+        String requestJson = "{\n\"text\":\"Отличная вещь\"\n}";
 
         CommentDto returned = mockCommentDto(99, "Отличная вещь", "Анна");
 
@@ -218,7 +204,9 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text").value("Отличная вещь"))
                 .andExpect(jsonPath("$.authorName").value("Анна"));
 
-        verify(itemService, times(1)).createComment(any(CommentCreateDto.class), eq(itemId), eq(userId));
+        verify(itemService,
+                times(1)).createComment(any(CommentCreateDto.class),
+                eq(itemId), eq(userId));
     }
 
     @Test
@@ -226,11 +214,7 @@ class ItemControllerTest {
     void addComment_bookingInvalid_returns400() throws Exception {
         int itemId = 88;
         int userId = 5;
-        String requestJson = """
-                {
-                "text":"Не могу добавить комментарий"
-                }
-                """;
+        String requestJson = "{\n\"text\":\"Не могу добавить комментарий\"\n}";
 
         when(itemService.createComment(any(CommentCreateDto.class), eq(itemId), eq(userId)))
                 .thenThrow(new BookingNotvalidException("Аренда не найдена"));
@@ -244,6 +228,8 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.error").value("Ошибка параметра"))
                 .andExpect(jsonPath("$.description", Matchers.containsString("Аренда не найдена")));
 
-        verify(itemService, times(1)).createComment(any(CommentCreateDto.class), eq(itemId), eq(userId));
+        verify(itemService,
+                times(1)).createComment(any(CommentCreateDto.class),
+                eq(itemId), eq(userId));
     }
 }
