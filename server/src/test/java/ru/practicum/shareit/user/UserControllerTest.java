@@ -44,9 +44,7 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users - success")
     void addUser_success() throws Exception {
-        String requestJson = """
-                {"name":"Иван","email":"ivan@example.com"}
-                """;
+        String requestJson = "{\n\"name\":\"Иван\",\"email\":\"ivan@example.com\"\n}";
 
         UserDto returned = mockUserDto(1, "Иван", "ivan@example.com");
 
@@ -67,9 +65,7 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users - NotUniqueEmailException -> 409 with error body")
     void addUser_emailConflict_returns409() throws Exception {
-        String requestJson = """
-                {"name":"Иван","email":"conflict@example.com"}
-                """;
+        String requestJson = "{\n\"name\":\"Иван\",\"email\":\"conflict@example.com\"\n}";
 
         when(userService.addUser(any(UserCreateDto.class)))
                 .thenThrow(new NotUniqueEmailException("Пользователь с таким email-адресом уже существует"));
@@ -86,9 +82,7 @@ class UserControllerTest {
     @DisplayName("PATCH /users/{id} - success")
     void updateUser_success() throws Exception {
         int userId = 5;
-        String requestJson = """
-                {"name":"Ольга","email":"olga@new.com"}
-                """;
+        String requestJson = "{\n\"name\":\"Ольга\",\"email\":\"olga@new.com\"\n}";
 
         UserDto returned = mockUserDto(userId, "Ольга", "olga@new.com");
 
