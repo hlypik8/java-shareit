@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -22,17 +20,17 @@ public class RequestController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getUserRequestsList(@RequestHeader(sharerIdHeader) Integer userId){
+    public ResponseEntity<Object> getUserRequestsList(@RequestHeader(sharerIdHeader) Integer userId) {
         return requestClient.getUserRequestsList(userId);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Object> getAllRequests(){
+    public ResponseEntity<Object> getAllRequests() {
         return requestClient.getAllRequests();
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getRequestById(@PathVariable Integer requestId){
+    public ResponseEntity<Object> getRequestById(@PathVariable Integer requestId) {
         return requestClient.getRequestById(requestId);
     }
 }

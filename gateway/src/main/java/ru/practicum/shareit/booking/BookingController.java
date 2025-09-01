@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -28,14 +26,14 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> bookingVerification(@RequestHeader(sharerIdHeader) Integer userId,
-                                          @PathVariable Integer bookingId,
-                                          @RequestParam("approved") boolean approved) {
+                                                      @PathVariable Integer bookingId,
+                                                      @RequestParam("approved") boolean approved) {
         return bookingClient.bookingVerification(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(@PathVariable Long bookingId,
-                                 @RequestHeader(sharerIdHeader) Integer userId) {
+                                             @RequestHeader(sharerIdHeader) Integer userId) {
         return bookingClient.getBookingDtoById(bookingId, userId);
     }
 
@@ -51,7 +49,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getOwnerBookings(@RequestHeader(sharerIdHeader) Integer userId,
-                                             @RequestParam(name = "state", required = false, defaultValue = "ALL") String state) {
+                                                   @RequestParam(name = "state", required = false, defaultValue = "ALL") String state) {
         return bookingClient.getOwnerBookings(userId, state);
     }
 }

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getBookingDtoById(Long userId, Integer bookingId) {
-        Map <String, Object> params = Map.of(
+        Map<String, Object> params = Map.of(
                 "bookingId", bookingId
         );
         return get("/" + bookingId, userId, params);
@@ -56,7 +55,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> bookingVerification(Integer userId, Integer bookingId, boolean approved) {
-        Map <String, Object> params = Map.of(
+        Map<String, Object> params = Map.of(
                 "approved", approved
         );
         return patch("/" + bookingId + "?approved=" + approved, userId, params);

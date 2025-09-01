@@ -1,12 +1,10 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
@@ -30,15 +28,15 @@ public class UserClient extends BaseClient {
         return post("", userCreateDto);
     }
 
-    public ResponseEntity<Object> updateUser(Integer userId, UserUpdateDto userUpdateDto){
+    public ResponseEntity<Object> updateUser(Integer userId, UserUpdateDto userUpdateDto) {
         return patch("/" + userId, userUpdateDto);
     }
 
-    public ResponseEntity<Object> getUserDtoById(Integer userId){
+    public ResponseEntity<Object> getUserDtoById(Integer userId) {
         return get("/" + userId);
     }
 
-    public ResponseEntity<Object> deleteUser(Integer userId){
+    public ResponseEntity<Object> deleteUser(Integer userId) {
         return delete("/" + userId);
     }
 }

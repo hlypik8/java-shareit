@@ -40,7 +40,7 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getRequestById(Integer requestId) {
-        Map <String, Object> params = Map.of(
+        Map<String, Object> params = Map.of(
                 "requestId", requestId
         );
         return get("/" + requestId, 0L, params);
