@@ -43,7 +43,12 @@ public class UserController {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handle(NotUniqueEmailException e) {
-        log.error("Ошибка уникальности email: {}", e.getMessage());
         return new ErrorResponse("Ошибка параметра email", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handle(NotFoundException e){
+        return new ErrorResponse("Ошибка", e.getMessage());
     }
 }
