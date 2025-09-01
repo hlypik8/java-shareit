@@ -71,7 +71,7 @@ public class BookingController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handle(UnavailableItemException e ){
+    public ErrorResponse handle(UnavailableItemException e) {
         return new ErrorResponse("Ошибка", e.getMessage());
     }
 }

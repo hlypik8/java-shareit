@@ -48,7 +48,7 @@ public class UserController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handle(NotFoundException e){
+    public ErrorResponse handle(NotFoundException e) {
         return new ErrorResponse("Ошибка", e.getMessage());
     }
 }

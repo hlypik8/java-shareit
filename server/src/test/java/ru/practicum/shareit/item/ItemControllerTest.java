@@ -34,9 +34,6 @@ class ItemControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private ItemService itemService;
 
@@ -68,7 +65,9 @@ class ItemControllerTest {
     @DisplayName("POST /items - success")
     void addItem_success() throws Exception {
         String requestJson = """
-                {"name":"Лопата","description":"для снега","available":true,"requestId":null}
+                {
+                "name":"Лопата","description":"для снега","available":true,"requestId":null
+                }
                 """;
 
         ItemDto returned = mockItemDto(1, "Лопата", "для снега", true);
@@ -93,7 +92,9 @@ class ItemControllerTest {
     @DisplayName("POST /items - NotFoundException -> 404")
     void addItem_notFound_returns404() throws Exception {
         String requestJson = """
-                {"name":"Вилка","description":"металл","available":true}
+                {
+                "name":"Вилка","description":"металл","available":true
+                }
                 """;
 
         when(itemService.addItem(any(ItemCreateDto.class), eq(99)))
@@ -117,7 +118,9 @@ class ItemControllerTest {
         int userId = 7;
         int itemId = 5;
         String requestJson = """
-                {"name":"Дрель","description":"новая","available":false}
+                {
+                "name":"Дрель","description":"новая","available":false
+                }
                 """;
 
         ItemDto returned = mockItemDto(itemId, "Дрель", "новая", false);
@@ -197,7 +200,9 @@ class ItemControllerTest {
         int itemId = 77;
         int userId = 4;
         String requestJson = """
-                {"text":"Отличная вещь"}
+                {
+                "text":"Отличная вещь"
+                }
                 """;
 
         CommentDto returned = mockCommentDto(99, "Отличная вещь", "Анна");
@@ -222,7 +227,9 @@ class ItemControllerTest {
         int itemId = 88;
         int userId = 5;
         String requestJson = """
-                {"text":"Не могу добавить комментарий"}
+                {
+                "text":"Не могу добавить комментарий"
+                }
                 """;
 
         when(itemService.createComment(any(CommentCreateDto.class), eq(itemId), eq(userId)))
