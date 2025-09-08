@@ -1,2 +1,29 @@
-# java-shareit
-Template repository for Shareit project.
+## ShareIt - микросервисная платформа для аренды вещей
+
+Реализован бэкенд для публикации предметов, управления бронированиями, отзывами и связями «владелец ↔ арендатор». Проект использует Java и Spring Boot, модульную структуру (shareit-gateway, shareit-server) и готов к контейнеризации (Docker / docker-compose).
+
+**Ключевые технологии:**
+* Java,
+* Spring Boot,
+* Spring Web,
+* Spring Data JPA,
+* Spring Validation + Hibernate Validator,
+* Spring Boot Actuator,
+* Lombok,
+* PostgreSQL,
+* Apache HttpClient5 (gateway → server),
+* Maven,
+* JaCoCo,
+* JUnit, MockMvc.
+
+**Архитектура и алгоритмы:** многослойная архитектура (контроллеры → сервисы → репозитории), REST API, проверка прав доступа и валидация входных данных; алгоритмы включают детекцию конфликтов бронирований и управление состояниями брони, реализацию шаблона Strategy для фильтрации бронирований (past/current/future/waiting/rejected), вычисление last/next-бронирований для предмета и разрешение публикации комментариев только после завершённой аренды. Транзакционная целостность и пагинация/сортировка обеспечены на уровне сервисов/репозиториев.
+
+
+
+
+
+
+
+
+
+
